@@ -280,7 +280,7 @@ try {
     Assert-Keys $manifest.binding @('project_id','game_id','adapter_id')
     if ($manifest.schema -cne $Package.Schema -or $manifest.status -cne $Package.Status -or
         $manifest.appid -cne '1263240' -or $manifest.buildid -cne '21628663' -or $manifest.mode -cne 'data-only:th' -or
-        $manifest.target -cne 'SkateStory_Data/resources.assets' -or $manifest.preview_manifest_sha256 -cne '673ef135a9f0d92ca40de4fd70aab88cef16a457ffd12be46c7b63098f92a88c' -or
+        $manifest.target -cne 'SkateStory_Data/resources.assets' -or $manifest.preview_manifest_sha256 -cne '6b80d561ba41e9383c1093d8967fff85db132b17d9062e4db9114c9cfcfd82d6' -or
         $manifest.binding.project_id -cne '2cc82fbb-920c-4215-a705-b172d16dc1ac' -or $manifest.binding.game_id -cne 'skate-story' -or $manifest.binding.adapter_id -cne 'skate-story-i2' -or
         $manifest.translation_count -ne 2304) { throw 'Wrong project/package/build/frozen snapshot.' }
     foreach ($key in $claims) {
@@ -316,10 +316,10 @@ try {
         $expectedGuards = [pscustomobject]@{'SkateStory_Data/sharedassets0.assets'='23ccfd339e59be92ed3d7e8f258a27268bc89fe250a91afa09c1d58440c7a630'}
     } else {
         # Assign before @(): PowerShell 5.1 emits a parsed JSON array as one object, so @(ConvertFrom-Json '[]') has one element.
-        $expectedPrevious = ConvertFrom-Json '[]'
+        $expectedPrevious = ConvertFrom-Json '[{"sha256":"b7caed8b27b7345d077d6debec28ae1c078a21c85c4b0312cbec27ce6c6089c9","size":278105132}]'
         $expectedPrevious = @($expectedPrevious)
         if ($manifest.profile -cne $Package.Name -or $member.original.sha256 -cne '3e65be29272f5879bd907a0d0c7f8134f5b5bd35902263dc65381bb0c3a7a82c' -or $member.original.size -ne 275110960 -or
-            $member.output.sha256 -cne 'b7caed8b27b7345d077d6debec28ae1c078a21c85c4b0312cbec27ce6c6089c9' -or $previous.Count -ne $expectedPrevious.Count) { throw 'Unsupported production identities.' }
+            $member.output.sha256 -cne '01be3a9711e85a5b9a1add8c6d3145ff6180a1906fd1aa63ca200d03a59b03d0' -or $previous.Count -ne $expectedPrevious.Count) { throw 'Unsupported production identities.' }
         for ($i = 0; $i -lt $previous.Count; $i++) {
             if ($previous[$i].sha256 -cne $expectedPrevious[$i].sha256 -or $previous[$i].size -ne $expectedPrevious[$i].size) { throw 'Unsupported previous output identity.' }
         }

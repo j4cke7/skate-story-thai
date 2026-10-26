@@ -10,7 +10,7 @@ A Thai translation mod for Skate Story on Steam Windows. It adds Thai as a new i
 
 [รายละเอียดรุ่น](https://github.com/j4cke7/skate-story-thai/releases/tag/v1.0.0-build21628663) · [ไฟล์ตรวจสอบ SHA-256](https://github.com/j4cke7/skate-story-thai/releases/download/v1.0.0-build21628663/Skate-Story-Thai-build21628663.zip.sha256)
 
-ดาวน์โหลด ZIP จากลิงก์ข้างบนเพื่อใช้งานม็อด ขนาดไฟล์ 1,692,133 ไบต์ หรือประมาณ 1.6 MiB
+ดาวน์โหลด ZIP จากลิงก์ข้างบนเพื่อใช้งานม็อด ขนาดไฟล์ 1,692,256 ไบต์ หรือประมาณ 1.6 MiB
 
 ม็อดเพิ่ม **ภาษาไทย** เป็นภาษาใหม่ในเกม ภาษาเดิมทุกภาษายังเลือกได้ตามปกติ แปลข้อความในตารางภาษาหลักของเกมครบ 2,304 รายการ ทั้งบทสนทนา ไอเทม และเมนู ข้อความบางส่วนที่อยู่นอกตารางนี้อาจยังเป็นภาษาอังกฤษ ฟอนต์ภาษาไทยรวมอยู่ในชุดม็อดแล้ว ไม่ต้องติดตั้งฟอนต์เพิ่ม
 
@@ -58,7 +58,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Patch.ps1 -Action Inst
 SHA-256 ของ `Skate-Story-Thai-build21628663.zip` คือ
 
 ```text
-bdff5180d18680ecb5eacd87b6ba71981d5ac2931ae4d6fb287137fbaee2612b
+69b0f59fc504da4b6495aa299f6b28080bcc206a19ac22de97fd891e4d0558e1
 ```
 
 ใน PowerShell ใช้คำสั่งนี้ โดยเปลี่ยนพาธให้ตรงกับไฟล์ที่ดาวน์โหลด แล้วเทียบค่า `Hash` กับค่าด้านบน
