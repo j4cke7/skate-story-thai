@@ -47,6 +47,16 @@ function Assert-Identity($Identity) {
     Assert-Hash $Identity.sha256
     Assert-PositiveInteger $Identity.size $maximumAssetBytes
 }
+function Assert-Previous($Previous, [string]$PinnedJson) {
+    # Assign before @(): PowerShell 5.1 emits a parsed JSON array as one object, so @(ConvertFrom-Json '[]') has one element.
+    $pinned = ConvertFrom-Json $PinnedJson
+    $pinned = @($pinned)
+    $Previous = @($Previous)
+    if ($Previous.Count -ne $pinned.Count) { throw 'Unsupported previous output identity.' }
+    for ($i = 0; $i -lt $pinned.Count; $i++) {
+        if ($Previous[$i].sha256 -cne $pinned[$i].sha256 -or $Previous[$i].size -ne $pinned[$i].size) { throw 'Unsupported previous output identity.' }
+    }
+}
 function Assert-SafePath([string]$Path) {
     $itemPath = [IO.Path]::GetFullPath($Path)
     while ($itemPath) {
@@ -109,8 +119,22 @@ function Find-SteamGame {
             if ($match.Success) { $games += Join-Path (Join-Path $library 'steamapps\common') $match.Groups[1].Value }
         }
     }
-    if ($games.Count -ne 1) { throw "Cannot identify one Steam installation. Pass -GameRoot with the $($Game.Title) folder (Steam > Manage > Browse local files)." }
-    return $games[0]
+    if ($games.Count -eq 1) { return $games[0] }
+    # Install.cmd and Uninstall.cmd set THAI_MOD_PICK, so a player picks the folder instead of typing a PowerShell command;
+    # a direct or scripted run keeps the error and never waits on a dialog.
+    if ($env:THAI_MOD_PICK -eq '1') {
+        $picked = Select-GameFolder
+        if ($picked) { return $picked }
+    }
+    throw "Cannot identify one Steam installation. Pass -GameRoot with the $($Game.Title) folder (Steam > Manage > Browse local files)."
+}
+function Select-GameFolder {
+    Add-Type -AssemblyName System.Windows.Forms
+    $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
+    $dialog.Description = "Select the $($Game.Title) game folder. In Steam: right-click the game > Manage > Browse local files."
+    $dialog.ShowNewFolderButton = $false
+    try { if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { return $dialog.SelectedPath } } finally { $dialog.Dispose() }
+    return $null
 }
 function Read-SteamBuild {
     # User decision 2026-10-26: the Steam build label only warns. File hashes decide what may be patched.
@@ -280,7 +304,7 @@ try {
     Assert-Keys $manifest.binding @('project_id','game_id','adapter_id')
     if ($manifest.schema -cne $Package.Schema -or $manifest.status -cne $Package.Status -or
         $manifest.appid -cne '1263240' -or $manifest.buildid -cne '21628663' -or $manifest.mode -cne 'data-only:th' -or
-        $manifest.target -cne 'SkateStory_Data/resources.assets' -or $manifest.preview_manifest_sha256 -cne '6b80d561ba41e9383c1093d8967fff85db132b17d9062e4db9114c9cfcfd82d6' -or
+        $manifest.target -cne 'SkateStory_Data/resources.assets' -or $manifest.preview_manifest_sha256 -cne '4700c0fc52dbe8cc4258d64c98fc5b7c932b456e129fbb527f36f6ec4a9477d3' -or
         $manifest.binding.project_id -cne '2cc82fbb-920c-4215-a705-b172d16dc1ac' -or $manifest.binding.game_id -cne 'skate-story' -or $manifest.binding.adapter_id -cne 'skate-story-i2' -or
         $manifest.translation_count -ne 2304) { throw 'Wrong project/package/build/frozen snapshot.' }
     foreach ($key in $claims) {
@@ -311,18 +335,13 @@ try {
         $marker = Assert-Contained $GameRoot (Join-Path $GameRoot '.skate-synthetic-fixture')
         if ([IO.File]::ReadAllText($marker) -cne 'skate-private-probe-fixture-v1') { throw 'Wrong synthetic marker.' }
         if ($member.original.sha256 -cne '6204198d9a2cb8c3c975dd5630467e7d6d6d6ee46b050b4acc8f70804fc2a07d' -or $member.original.size -ne 23 -or
-            $member.output.sha256 -cne '99491ae537180412be4a61a2e08f5f83e1744530bb85230d0fb5391daf678bf1' -or $member.output.size -ne 22 -or
-            $previous.Count -ne 1 -or $previous[0].sha256 -cne '4cde91c8e47f92754ec06d249a238b413d980042c75f37cd3dbbd1d68c80e53e' -or $previous[0].size -ne 23) { throw 'Unsupported fixture identities.' }
+            $member.output.sha256 -cne '99491ae537180412be4a61a2e08f5f83e1744530bb85230d0fb5391daf678bf1' -or $member.output.size -ne 22) { throw 'Unsupported fixture identities.' }
+        Assert-Previous $previous '[{"sha256":"4cde91c8e47f92754ec06d249a238b413d980042c75f37cd3dbbd1d68c80e53e","size":23}]'
         $expectedGuards = [pscustomobject]@{'SkateStory_Data/sharedassets0.assets'='23ccfd339e59be92ed3d7e8f258a27268bc89fe250a91afa09c1d58440c7a630'}
     } else {
-        # Assign before @(): PowerShell 5.1 emits a parsed JSON array as one object, so @(ConvertFrom-Json '[]') has one element.
-        $expectedPrevious = ConvertFrom-Json '[{"sha256":"b7caed8b27b7345d077d6debec28ae1c078a21c85c4b0312cbec27ce6c6089c9","size":278105132}]'
-        $expectedPrevious = @($expectedPrevious)
         if ($manifest.profile -cne $Package.Name -or $member.original.sha256 -cne '3e65be29272f5879bd907a0d0c7f8134f5b5bd35902263dc65381bb0c3a7a82c' -or $member.original.size -ne 275110960 -or
-            $member.output.sha256 -cne '01be3a9711e85a5b9a1add8c6d3145ff6180a1906fd1aa63ca200d03a59b03d0' -or $previous.Count -ne $expectedPrevious.Count) { throw 'Unsupported production identities.' }
-        for ($i = 0; $i -lt $previous.Count; $i++) {
-            if ($previous[$i].sha256 -cne $expectedPrevious[$i].sha256 -or $previous[$i].size -ne $expectedPrevious[$i].size) { throw 'Unsupported previous output identity.' }
-        }
+            $member.output.sha256 -cne '859351578bcfdf9d21eb7aeee0898b5c75bd683e31a68d5002e82a3238ac3cce') { throw 'Unsupported production identities.' }
+        Assert-Previous $previous '[{"sha256":"01be3a9711e85a5b9a1add8c6d3145ff6180a1906fd1aa63ca200d03a59b03d0","size":278105132}]'
         $expectedGuards = '{"SkateStory.exe":"af8a4516ca30854f59445dd7548958d18feb293a0a7fc24705e47bdb37acdb40","UnityPlayer.dll":"6ecc1a664d45abb7f8a1d3807b61ec66e8fdeef557bb8f03b526392d8c29b3d8","SkateStory_Data/sharedassets0.assets":"f6a8e39e4b18fbb614d9b11eb6cc79150b8bcdaf0ba223aece9fc52f50d20185","SkateStory_Data/globalgamemanagers.assets":"ba81a3348d6c26e2c6bfdd26c201aa19f0c15fad39875392a545524a22dcabf2","SkateStory_Data/Resources/unity default resources":"f5e29909672ea6bf47805d6fbaf716751090886f7cb39515f5d4b4eaa02ca6a9","SkateStory_Data/Managed/Assembly-CSharp.dll":"da2ae1076c492c1a5992d1a3617032510eaacb01b224cafa80c39705a2954eeb","SkateStory_Data/Managed/I2-Localization.dll":"b11f6ec256e40fe641c87ac294bfbf22cca25d370c4726c3ba98f13d8e4e26b5","SkateStory_Data/Managed/Unity.TextMeshPro.dll":"144fb6bd829421bc27a163b38f1e37c0c4d1013732e952c32b901996e7403645"}' | ConvertFrom-Json
     }
     if ($manifest.guards -isnot [array] -or $manifest.guards.Count -ne @($expectedGuards.PSObject.Properties).Count) { throw 'Required support guards missing.' }
