@@ -2,11 +2,11 @@
 
 [![Skate Story](https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1263240/header.jpg)](https://store.steampowered.com/app/1263240/Skate_Story/)
 
-ม็อดภาษาไทยจากแฟนเกม สำหรับ **Skate Story บน Steam (Windows) build 21628663** รุ่นม็อด 1.0.1 เพิ่ม **ภาษาไทย** เป็นภาษาใหม่ ภาษาเดิมยังเลือกได้
+ม็อดภาษาไทยจากแฟนเกม สำหรับ **Skate Story บน Steam (Windows) build 21628663** รุ่นม็อด 1.0.2 เพิ่ม **ภาษาไทย** เป็นภาษาใหม่ ภาษาเดิมยังเลือกได้
 
 A fan-made Thai translation for Skate Story on Steam (Windows). It adds Thai as a new in-game language.
 
-## [ดาวน์โหลดม็อด (.zip, 1.6 MiB)](https://github.com/j4cke7/skate-story-thai/releases/download/v1.0.1-build21628663/Skate-Story-Thai-build21628663.zip)
+## [ดาวน์โหลดม็อด (.zip, 1.6 MiB)](https://github.com/j4cke7/skate-story-thai/releases/download/v1.0.2-build21628663/Skate-Story-Thai-build21628663.zip)
 
 ## ติดตั้ง
 
@@ -23,6 +23,6 @@ A fan-made Thai translation for Skate Story on Steam (Windows). It adds Thai as 
 
 ---
 
-ตัวติดตั้งเป็นสคริปต์ PowerShell ที่อ่านได้: [Patch.ps1](source/Patch.ps1) · SHA-256 ของ ZIP: `ef25b68b3082eaf7228e36dcb9717f704a2930252f9545ea547763a7620ba1f6` · [สัญญาอนุญาตฟอนต์](licenses/) (Trirong, Taviraj, Mitr ใช้ SIL OFL 1.1 และดัดแปลงให้วรรณยุกต์ไม่ทับสระ)
+ตัวติดตั้งเป็นสคริปต์ PowerShell ที่อ่านได้: [Patch.ps1](source/Patch.ps1) · SHA-256 ของ ZIP: `d923c0a32145075e1511bd1bd103e7d7e157e6d0938712931314dca38ce123a6` · [สัญญาอนุญาตฟอนต์](licenses/) (Trirong, Taviraj, Mitr ใช้ SIL OFL 1.1 และดัดแปลงให้วรรณยุกต์ไม่ทับสระ)
 
 ม็อดนี้เป็นงานแปลโดยแฟนเกม ไม่มีส่วนเกี่ยวข้องกับผู้พัฒนาหรือผู้จัดจำหน่าย Skate Story
